@@ -1,6 +1,6 @@
 import { InventoryItem, Transaction, Category, TransactionType } from '../types';
 
-const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbyJHxNrt6Ma6wKlvWBKm_FzGk8Q-o1PVw7-HrfBs2m55Z8N0uypXlyy_WdVSoTBcP2Tzw/exec';
+const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzJ3tc5D9jBiybV824xnXYaye0bX5h2df1U7R4AA7DI0Je77LjIcdYFAgjkjgfSs9zT/exec';
 
 export const getStoredConfig = (): string => localStorage.getItem('satyam_mall_sheet_url') || GOOGLE_SHEET_API_URL;
 export const saveConfig = (url: string) => localStorage.setItem('satyam_mall_sheet_url', url);
