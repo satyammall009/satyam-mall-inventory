@@ -19,7 +19,7 @@
  */
 
 // ==================== SETUP FUNCTION ====================
-// Run this ONCE to create sheets with proper headers and sample data
+// Run this ONCE to create sheets with proper headers
 
 function setupSheets() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -35,32 +35,7 @@ function setupSheets() {
   // Inventory Headers
   const invHeaders = ['ID', 'Name', 'Category', 'Quantity', 'Unit', 'MinLevel'];
   invSheet.getRange(1, 1, 1, invHeaders.length).setValues([invHeaders]);
-  invSheet.getRange(1, 1, 1, invHeaders.length).setFontWeight('bold').setBackground('#e67e22').setFontColor('white');
-
-  // Sample Inventory Data
-  const invData = [
-    [1, 'Floor Cleaner (Lysol)', 'Housekeeping', 15, 'Liters', 10],
-    [2, 'Toilet Paper Rolls', 'Housekeeping', 120, 'Rolls', 50],
-    [3, 'Glass Cleaner', 'Housekeeping', 8, 'Liters', 5],
-    [4, 'Mop Refills', 'Housekeeping', 20, 'pcs', 10],
-    [5, 'Garbage Bags (Large)', 'Housekeeping', 200, 'pcs', 100],
-    [6, 'Hand Soap Liquid', 'Housekeeping', 25, 'Liters', 15],
-    [7, 'Air Freshener', 'Housekeeping', 30, 'pcs', 15],
-    [8, 'Broom (Hard)', 'Housekeeping', 12, 'pcs', 5],
-    [9, 'Dustpan', 'Housekeeping', 10, 'pcs', 5],
-    [10, 'Coffee Powder', 'Pantry', 3, 'kg', 2],
-    [11, 'Tea Bags', 'Pantry', 500, 'pcs', 200],
-    [12, 'Sugar', 'Pantry', 10, 'kg', 5],
-    [13, 'Milk Powder', 'Pantry', 5, 'kg', 3],
-    [14, 'Disposable Cups', 'Pantry', 300, 'pcs', 100],
-    [15, 'Paper Napkins', 'Pantry', 500, 'pcs', 200],
-    [16, 'Mineral Water Bottles', 'Pantry', 48, 'pcs', 24],
-    [17, 'Biscuits (Packets)', 'Pantry', 50, 'pcs', 20],
-  ];
-
-  if (invData.length > 0) {
-    invSheet.getRange(2, 1, invData.length, invHeaders.length).setValues(invData);
-  }
+  invSheet.getRange(1, 1, 1, invHeaders.length).setFontWeight('bold').setBackground('#0ea5e9').setFontColor('white');
 
   // Format columns
   invSheet.setColumnWidth(1, 50);   // ID
@@ -81,24 +56,7 @@ function setupSheets() {
   // Transaction Headers
   const transHeaders = ['Date', 'Type', 'ItemName', 'Quantity', 'Unit', 'Location', 'PersonName', 'Notes'];
   transSheet.getRange(1, 1, 1, transHeaders.length).setValues([transHeaders]);
-  transSheet.getRange(1, 1, 1, transHeaders.length).setFontWeight('bold').setBackground('#3498db').setFontColor('white');
-
-  // Sample Transaction Data
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  const transData = [
-    [today, 'RECEIVE', 'Floor Cleaner (Lysol)', 20, 'Liters', 'Store Room', 'Vendor - CleanPro', 'Monthly supply'],
-    [today, 'ISSUE', 'Toilet Paper Rolls', 24, 'Rolls', 'Ground Floor', 'Ramesh (HK)', ''],
-    [today, 'ISSUE', 'Coffee Powder', 0.5, 'kg', 'Main Office', 'Suresh', 'Office pantry'],
-    [yesterday, 'ISSUE', 'Glass Cleaner', 2, 'Liters', '3rd Floor', 'Mohan (HK)', ''],
-    [yesterday, 'RECEIVE', 'Tea Bags', 200, 'pcs', 'Store Room', 'Vendor - TeaWorld', ''],
-  ];
-
-  if (transData.length > 0) {
-    transSheet.getRange(2, 1, transData.length, transHeaders.length).setValues(transData);
-  }
+  transSheet.getRange(1, 1, 1, transHeaders.length).setFontWeight('bold').setBackground('#22c55e').setFontColor('white');
 
   // Format columns
   transSheet.setColumnWidth(1, 150);  // Date
@@ -122,7 +80,7 @@ function setupSheets() {
   // Show success message
   SpreadsheetApp.getUi().alert(
     'Setup Complete!',
-    'Inventory and Transactions sheets have been created with sample data.\n\nNext Steps:\n1. Click Deploy > New Deployment\n2. Select Web App\n3. Set "Who has access" to "Anyone"\n4. Copy the URL and paste in your app Settings',
+    'Inventory and Transactions sheets have been created.\n\nNext Steps:\n1. Click Deploy > New Deployment\n2. Select Web App\n3. Set "Who has access" to "Anyone"\n4. Copy the URL and paste in your app Settings',
     SpreadsheetApp.getUi().ButtonSet.OK
   );
 }
@@ -315,6 +273,57 @@ function doPost(e) {
       return createJsonResponse({ status: 'error', message: 'Item not found' });
     }
 
+    // -------- Upload File to Google Drive --------
+    if (body.action === 'uploadFile') {
+      try {
+        const fileName = body.fileName || 'upload_' + Date.now();
+        const mimeType = body.mimeType || 'application/octet-stream';
+        const fileData = body.fileData; // Base64 encoded
+        const folderId = body.folderId;
+
+        if (!fileData) {
+          return createJsonResponse({ status: 'error', message: 'No file data provided' });
+        }
+
+        // Decode base64 data
+        const decodedData = Utilities.base64Decode(fileData);
+        const blob = Utilities.newBlob(decodedData, mimeType, fileName);
+
+        // Get folder or use root
+        let folder;
+        if (folderId) {
+          try {
+            folder = DriveApp.getFolderById(folderId);
+          } catch (folderError) {
+            // If folder not found, use root
+            folder = DriveApp.getRootFolder();
+          }
+        } else {
+          folder = DriveApp.getRootFolder();
+        }
+
+        // Create file in folder
+        const file = folder.createFile(blob);
+
+        // Set file to be viewable by anyone with link
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+        const fileUrl = file.getUrl();
+        const fileId = file.getId();
+
+        return createJsonResponse({
+          status: 'success',
+          message: 'File uploaded successfully',
+          fileUrl: fileUrl,
+          fileId: fileId,
+          fileName: fileName
+        });
+
+      } catch (uploadError) {
+        return createJsonResponse({ status: 'error', message: 'Upload failed: ' + uploadError.toString() });
+      }
+    }
+
     return createJsonResponse({ status: 'error', message: 'Unknown action: ' + body.action });
 
   } catch (error) {
@@ -342,16 +351,16 @@ function testSetup() {
 
   if (invSheet) {
     const invCount = invSheet.getLastRow() - 1;
-    message += '✅ Inventory Sheet: Found (' + invCount + ' items)\n';
+    message += 'Inventory Sheet: Found (' + invCount + ' items)\n';
   } else {
-    message += '❌ Inventory Sheet: Not Found\n';
+    message += 'Inventory Sheet: Not Found\n';
   }
 
   if (transSheet) {
     const transCount = transSheet.getLastRow() - 1;
-    message += '✅ Transactions Sheet: Found (' + transCount + ' records)\n';
+    message += 'Transactions Sheet: Found (' + transCount + ' records)\n';
   } else {
-    message += '❌ Transactions Sheet: Not Found\n';
+    message += 'Transactions Sheet: Not Found\n';
   }
 
   message += '\nIf any sheet is missing, run setupSheets() first.';

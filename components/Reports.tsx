@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Transaction, TransactionType } from '../types';
-import { Download, FileText, Filter, Calendar, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Download, FileText, Filter, Calendar, ArrowUpRight, ArrowDownLeft, RotateCcw } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -89,7 +89,7 @@ const Reports: React.FC<Props> = ({ transactions }) => {
       startY: 35,
       theme: 'grid',
       styles: { fontSize: 9 },
-      headStyles: { fillColor: [99, 102, 241] }
+      headStyles: { fillColor: [14, 165, 233] }
     });
 
     doc.save(`satyam_report_${new Date().toISOString().slice(0, 10)}.pdf`);
@@ -97,28 +97,30 @@ const Reports: React.FC<Props> = ({ transactions }) => {
 
   return (
     <div className="space-y-6">
-      <div className="glass-card rounded-2xl overflow-hidden">
+      <div className="card overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-6 border-b border-slate-100">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                <FileText className="text-primary-400" size={28} />
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+                <div className="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center">
+                  <FileText className="text-brand-500" size={20} />
+                </div>
                 Transaction Reports
               </h2>
-              <p className="text-sm text-dark-400 mt-1">View and download history of Issues and Receipts</p>
+              <p className="text-sm text-slate-500 mt-1 ml-13">View and download history of Issues and Receipts</p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={downloadExcel}
-                className="flex items-center gap-2 px-5 py-2.5 btn-glossy-success rounded-xl text-white font-medium"
+                className="flex items-center gap-2 px-4 py-2.5 bg-green-50 text-green-600 rounded-xl font-medium hover:bg-green-100 transition-colors"
               >
                 <FileText size={18} />
                 Excel
               </button>
               <button
                 onClick={downloadPDF}
-                className="flex items-center gap-2 px-5 py-2.5 btn-glossy-danger rounded-xl text-white font-medium"
+                className="flex items-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors"
               >
                 <Download size={18} />
                 PDF
@@ -128,31 +130,31 @@ const Reports: React.FC<Props> = ({ transactions }) => {
         </div>
 
         {/* Filters */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-6 bg-slate-50 border-b border-slate-100">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs font-bold text-dark-400 uppercase mb-2">Transaction Type</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-2">Transaction Type</label>
               <div className="relative">
-                <Filter className="absolute left-4 top-3 text-dark-400" size={16} />
+                <Filter className="absolute left-4 top-3.5 text-slate-400" size={16} />
                 <select
-                  className="w-full pl-11 pr-4 py-2.5 input-glass rounded-xl text-white text-sm appearance-none cursor-pointer"
+                  className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-xl text-slate-700 text-sm appearance-none cursor-pointer focus:border-brand-500 focus:outline-none bg-white"
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value)}
                 >
-                  <option value="All" className="bg-dark-900">All Types</option>
-                  <option value={TransactionType.ISSUE} className="bg-dark-900">Issue (Out)</option>
-                  <option value={TransactionType.RECEIVE} className="bg-dark-900">Receive (In)</option>
+                  <option value="All">All Types</option>
+                  <option value={TransactionType.ISSUE}>Issue (Out)</option>
+                  <option value={TransactionType.RECEIVE}>Receive (In)</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-dark-400 uppercase mb-2">From Date</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-2">From Date</label>
               <div className="relative">
-                <Calendar className="absolute left-4 top-3 text-dark-400" size={16} />
+                <Calendar className="absolute left-4 top-3.5 text-slate-400" size={16} />
                 <input
                   type="date"
-                  className="w-full pl-11 pr-4 py-2.5 input-glass rounded-xl text-white text-sm"
+                  className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-xl text-slate-700 text-sm focus:border-brand-500 focus:outline-none bg-white"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
@@ -160,12 +162,12 @@ const Reports: React.FC<Props> = ({ transactions }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-dark-400 uppercase mb-2">To Date</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-2">To Date</label>
               <div className="relative">
-                <Calendar className="absolute left-4 top-3 text-dark-400" size={16} />
+                <Calendar className="absolute left-4 top-3.5 text-slate-400" size={16} />
                 <input
                   type="date"
-                  className="w-full pl-11 pr-4 py-2.5 input-glass rounded-xl text-white text-sm"
+                  className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-xl text-slate-700 text-sm focus:border-brand-500 focus:outline-none bg-white"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                 />
@@ -175,8 +177,9 @@ const Reports: React.FC<Props> = ({ transactions }) => {
             <div className="flex items-end">
               <button
                 onClick={() => { setFilterType('All'); setStartDate(''); setEndDate(''); }}
-                className="w-full py-2.5 glass rounded-xl text-dark-300 hover:text-white text-sm font-medium transition-colors"
+                className="w-full py-3 border-2 border-slate-200 rounded-xl text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors flex items-center justify-center gap-2"
               >
+                <RotateCcw size={16} />
                 Reset Filters
               </button>
             </div>
@@ -186,7 +189,7 @@ const Reports: React.FC<Props> = ({ transactions }) => {
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 text-dark-300 font-semibold uppercase tracking-wider text-xs">
+            <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-xs">
               <tr>
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">Type</th>
@@ -196,37 +199,37 @@ const Reports: React.FC<Props> = ({ transactions }) => {
                 <th className="px-6 py-4">Person</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-100">
               {filteredTransactions.length > 0 ? (
                 filteredTransactions.map((t) => (
-                  <tr key={t.id} className="hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4 text-dark-400 whitespace-nowrap">
+                  <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 text-slate-500 whitespace-nowrap">
                       {new Date(t.date).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold ${
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold ${
                         t.type === TransactionType.RECEIVE
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/20'
-                          : 'bg-orange-500/20 text-orange-400 border border-orange-500/20'
+                          ? 'bg-green-50 text-green-600'
+                          : 'bg-orange-50 text-orange-600'
                       }`}>
                         {t.type === TransactionType.RECEIVE ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
                         {t.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-medium text-white">{t.itemName}</td>
+                    <td className="px-6 py-4 font-medium text-slate-800">{t.itemName}</td>
                     <td className="px-6 py-4">
-                      <span className="font-bold text-white">{t.quantity}</span>
-                      <span className="text-dark-400 text-xs ml-1">{t.unit}</span>
+                      <span className="font-bold text-slate-800">{t.quantity}</span>
+                      <span className="text-slate-400 text-xs ml-1">{t.unit}</span>
                     </td>
-                    <td className="px-6 py-4 text-dark-300">{t.location}</td>
-                    <td className="px-6 py-4 text-dark-300">{t.personName}</td>
+                    <td className="px-6 py-4 text-slate-600">{t.location}</td>
+                    <td className="px-6 py-4 text-slate-600">{t.personName}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
-                    <FileText className="mx-auto text-dark-500 mb-3" size={40} />
-                    <p className="text-dark-400">No transactions found</p>
+                    <FileText className="mx-auto text-slate-300 mb-3" size={40} />
+                    <p className="text-slate-500">No transactions found</p>
                   </td>
                 </tr>
               )}
@@ -235,8 +238,8 @@ const Reports: React.FC<Props> = ({ transactions }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-white/10 text-right">
-          <span className="text-xs text-dark-500">
+        <div className="p-4 border-t border-slate-100 bg-slate-50 text-right">
+          <span className="text-xs text-slate-500">
             Showing {filteredTransactions.length} records
           </span>
         </div>
