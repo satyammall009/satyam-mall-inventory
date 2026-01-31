@@ -72,7 +72,7 @@ function setupSheets() {
     transSheet.clear();
   }
 
-  const transHeaders = ['Date', 'Type', 'ItemName', 'Quantity', 'Unit', 'Location', 'PersonName', 'Notes'];
+  const transHeaders = ['Date', 'Type', 'ItemName', 'Quantity', 'Unit', 'Location', 'PersonName', 'Notes', 'FileURL'];
   transSheet.getRange(1, 1, 1, transHeaders.length).setValues([transHeaders]);
   transSheet.getRange(1, 1, 1, transHeaders.length).setFontWeight('bold').setBackground('#d97706').setFontColor('white');
 
@@ -84,6 +84,7 @@ function setupSheets() {
   transSheet.setColumnWidth(6, 120);
   transSheet.setColumnWidth(7, 150);
   transSheet.setColumnWidth(8, 200);
+  transSheet.setColumnWidth(9, 250);
 
   transSheet.getRange('A:A').setNumberFormat('dd-mmm-yyyy hh:mm');
 
@@ -289,7 +290,8 @@ function doPost(e) {
         body.unit || '',
         body.location || '',
         body.personName || '',
-        body.notes || ''
+        body.notes || '',
+        body.fileUrl || ''
       ];
       tSheet.appendRow(transactionRow);
 

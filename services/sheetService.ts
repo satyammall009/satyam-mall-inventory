@@ -1,10 +1,28 @@
 import { InventoryItem, Transaction, Category, TransactionType } from '../types';
 
 const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbweHGV90fbaGi0yPHIolplvP3JPiO8U4CKnue9GWhkh4K0HWJE0XJh22VxXjhHaSzft4A/exec';
-const GOOGLE_DRIVE_FOLDER_ID = '1miMudOBbLVGNop-1VRbsHYsc3jKaJG7B';
 
 export const getStoredConfig = (): string => localStorage.getItem('satyam_mall_sheet_url') || GOOGLE_SHEET_API_URL;
 export const saveConfig = (url: string) => localStorage.setItem('satyam_mall_sheet_url', url);
+
+// Cache keys
+const CACHE_INVENTORY = 'satyam_mall_inventory_cache';
+const CACHE_TRANSACTIONS = 'satyam_mall_transactions_cache';
+
+// Get cached data
+export const getCachedInventory = (): InventoryItem[] => {
+  try {
+    const cached = localStorage.getItem(CACHE_INVENTORY);
+    return cached ? JSON.parse(cached) : [];
+  } catch { return []; }
+};
+
+export const getCachedTransactions = (): Transaction[] => {
+  try {
+    const cached = localStorage.getItem(CACHE_TRANSACTIONS);
+    return cached ? JSON.parse(cached) : [];
+  } catch { return []; }
+};
 
 // User Login
 export const loginUser = async (email: string, password: string): Promise<{ success: boolean; user?: { email: string; name: string; role: string }; message?: string }> => {
@@ -28,9 +46,9 @@ export const fetchInventory = async (): Promise<InventoryItem[]> => {
   try {
     const response = await fetch(`${getStoredConfig()}?sheet=Inventory`);
     const data = await response.json();
-    if (data.error) return [];
+    if (data.error) return getCachedInventory();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((row: any, index: number) => ({
+    const items = data.map((row: any, index: number) => ({
       id: String(row.id || index + 1),
       name: row.name || '',
       category: (row.category as Category) || Category.OTHERS,
@@ -38,8 +56,10 @@ export const fetchInventory = async (): Promise<InventoryItem[]> => {
       unit: row.unit || 'pcs',
       minLevel: Number(row.minlevel || row.minLevel || 5)
     }));
+    localStorage.setItem(CACHE_INVENTORY, JSON.stringify(items));
+    return items;
   } catch {
-    return [];
+    return getCachedInventory();
   }
 };
 
@@ -47,9 +67,9 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
   try {
     const response = await fetch(`${getStoredConfig()}?sheet=Transactions`);
     const data = await response.json();
-    if (data.error) return [];
+    if (data.error) return getCachedTransactions();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((row: any, index: number) => ({
+    const transactions = data.map((row: any, index: number) => ({
       id: String(index + 1),
       date: row.date || new Date().toISOString(),
       type: row.type as TransactionType,
@@ -58,14 +78,17 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
       unit: row.unit || '',
       location: row.location || '',
       personName: row.personname || row.personName || '',
-      notes: row.notes || ''
+      notes: row.notes || '',
+      fileUrl: row.fileurl || row.fileUrl || ''
     }));
+    localStorage.setItem(CACHE_TRANSACTIONS, JSON.stringify(transactions));
+    return transactions;
   } catch {
-    return [];
+    return getCachedTransactions();
   }
 };
 
-export const submitTransaction = async (transaction: Omit<Transaction, 'id' | 'date'>): Promise<boolean> => {
+export const submitTransaction = async (transaction: Omit<Transaction, 'id' | 'date'> & { fileUrl?: string }): Promise<boolean> => {
   try {
     const response = await fetch(getStoredConfig(), {
       method: 'POST',
@@ -108,8 +131,7 @@ export const uploadFileToDrive = async (file: File, itemName: string): Promise<{
         action: 'uploadFile',
         fileName: `${itemName}_${Date.now()}_${file.name}`,
         mimeType: file.type,
-        fileData: base64Data,
-        folderId: GOOGLE_DRIVE_FOLDER_ID
+        fileData: base64Data
       })
     });
     const result = await response.json();

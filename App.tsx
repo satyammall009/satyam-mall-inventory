@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import IssueReceiveForm from './components/IssueReceiveForm';
@@ -6,7 +6,7 @@ import InventoryTable from './components/InventoryTable';
 import Reports from './components/Reports';
 import Login from './components/Login';
 import { InventoryItem, Transaction, TransactionType } from './types';
-import { fetchInventory, fetchTransactions } from './services/sheetService';
+import { fetchInventory, fetchTransactions, getCachedInventory, getCachedTransactions } from './services/sheetService';
 import { Loader2 } from 'lucide-react';
 
 interface UserSession {
@@ -20,9 +20,9 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [inventory, setInventory] = useState<InventoryItem[]>(getCachedInventory());
+  const [transactions, setTransactions] = useState<Transaction[]>(getCachedTransactions());
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('satyam_mall_user');
@@ -37,17 +37,18 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = useCallback(async (showLoader = false) => {
+    if (showLoader) setLoading(true);
     const [invData, transData] = await Promise.all([fetchInventory(), fetchTransactions()]);
     setInventory(invData);
     setTransactions(transData);
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
-    if (isAuthenticated) loadData();
-  }, [isAuthenticated]);
+    if (isAuthenticated && inventory.length === 0) loadData(true);
+    else if (isAuthenticated) loadData(false);
+  }, [isAuthenticated, inventory.length, loadData]);
 
   const handleLogin = (user: { email: string; name: string; role: string }) => {
     setCurrentUser({

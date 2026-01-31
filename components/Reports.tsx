@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Transaction, TransactionType } from '../types';
-import { Download, FileText, Filter, Calendar, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Download, FileText, Filter, Calendar, ArrowUpRight, ArrowDownLeft, ExternalLink } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -28,7 +28,7 @@ const Reports: React.FC<Props> = ({ transactions }) => {
   }, [transactions, filterType, startDate, endDate]);
 
   const downloadCSV = () => {
-    const headers = ["Date", "Type", "Item Name", "Quantity", "Unit", "Location", "Person", "Notes"];
+    const headers = ["Date", "Type", "Item Name", "Quantity", "Unit", "Location", "Person", "Notes", "File URL"];
     const csvContent = [
       headers.join(","),
       ...filteredTransactions.map(t => [
@@ -39,7 +39,8 @@ const Reports: React.FC<Props> = ({ transactions }) => {
         t.unit || '',
         t.location,
         `"${t.personName}"`,
-        t.notes ? `"${t.notes}"` : ""
+        t.notes ? `"${t.notes}"` : "",
+        t.fileUrl || ""
       ].join(","))
     ].join("\n");
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -139,6 +140,7 @@ const Reports: React.FC<Props> = ({ transactions }) => {
               <th className="px-4 py-3 text-left font-semibold">Qty</th>
               <th className="px-4 py-3 text-left font-semibold">Location</th>
               <th className="px-4 py-3 text-left font-semibold">Person</th>
+              <th className="px-4 py-3 text-left font-semibold">File</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -155,9 +157,18 @@ const Reports: React.FC<Props> = ({ transactions }) => {
                 <td className="px-4 py-3"><span className="font-semibold">{t.quantity}</span> <span className="text-gray-400 text-xs">{t.unit}</span></td>
                 <td className="px-4 py-3 text-gray-600">{t.location}</td>
                 <td className="px-4 py-3 text-gray-600">{t.personName}</td>
+                <td className="px-4 py-3">
+                  {t.fileUrl ? (
+                    <a href={t.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 text-xs font-medium">
+                      <ExternalLink size={12} /> View
+                    </a>
+                  ) : (
+                    <span className="text-gray-300 text-xs">-</span>
+                  )}
+                </td>
               </tr>
             )) : (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">No transactions found</td></tr>
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-gray-400">No transactions found</td></tr>
             )}
           </tbody>
         </table>

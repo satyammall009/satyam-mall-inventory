@@ -90,7 +90,8 @@ const IssueReceiveForm: React.FC<Props> = ({ type, inventory, onSuccess }) => {
       unit: formData.unit,
       location: formData.location,
       personName: formData.personName,
-      notes: uploadedFileUrl ? `${formData.notes} [File: ${uploadedFileUrl}]` : formData.notes
+      notes: formData.notes,
+      fileUrl: uploadedFileUrl
     });
 
     if (success) {

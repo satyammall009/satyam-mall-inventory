@@ -43,6 +43,7 @@ export interface Transaction {
   location: FloorLocation | string;
   personName: string; // Who took it or who delivered it
   notes?: string;
+  fileUrl?: string; // Uploaded invoice/photo URL
 }
 
 export interface SheetConfig {
