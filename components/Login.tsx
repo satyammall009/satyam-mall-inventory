@@ -23,13 +23,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setError('');
     setLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const trimmedUsername = username.trim();
-    const trimmedPassword = password.trim();
+    await new Promise(resolve => setTimeout(resolve, 400));
 
     const user = DEMO_USERS.find(
-      u => u.username.toLowerCase() === trimmedUsername.toLowerCase() && u.password === trimmedPassword
+      u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password.trim()
     );
 
     if (user) {
@@ -46,32 +43,30 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-500 rounded-2xl shadow-lg shadow-brand-500/30 mb-4">
-            <Box className="h-8 w-8 text-white" />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-primary-600 rounded-xl mb-3">
+            <Box className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">Satyam Mall</h1>
-          <p className="text-slate-500 text-sm mt-1">Inventory Management System</p>
+          <h1 className="text-xl font-bold text-gray-900">Satyam Mall</h1>
+          <p className="text-gray-500 text-sm">Inventory Management System</p>
         </div>
 
-        {/* Login Card */}
-        <div className="card p-8">
-          <h2 className="text-xl font-semibold text-slate-800 mb-1">Welcome back</h2>
-          <p className="text-slate-500 text-sm mb-6">Sign in to your account</p>
+        <div className="card p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">Sign In</h2>
+          <p className="text-gray-500 text-sm mb-5">Enter your credentials</p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Username</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Username</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   required
                   placeholder="Enter username"
-                  className="input-field pl-11"
+                  className="input-field pl-10"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={loading}
@@ -80,14 +75,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="Enter password"
-                  className="input-field pl-11 pr-11"
+                  className="input-field pl-10 pr-10"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
@@ -95,7 +90,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -103,43 +98,29 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm font-medium border border-red-100">
+              <div className="bg-red-50 text-red-600 px-3 py-2 rounded-lg text-sm border border-red-100">
                 {error}
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading} className="w-full btn-primary flex items-center justify-center gap-2">
               {loading && <Loader2 className="animate-spin" size={18} />}
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-slate-100">
-            <p className="text-xs text-slate-500 text-center mb-3">Demo Credentials</p>
+          <div className="mt-5 pt-5 border-t border-gray-100">
+            <p className="text-xs text-gray-500 text-center mb-2">Demo Credentials</p>
             <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="bg-slate-50 rounded-lg p-2 text-center">
-                <p className="font-medium text-slate-700">Admin</p>
-                <p className="text-slate-500">admin123</p>
-              </div>
-              <div className="bg-slate-50 rounded-lg p-2 text-center">
-                <p className="font-medium text-slate-700">Manager</p>
-                <p className="text-slate-500">manager123</p>
-              </div>
-              <div className="bg-slate-50 rounded-lg p-2 text-center">
-                <p className="font-medium text-slate-700">Staff</p>
-                <p className="text-slate-500">staff123</p>
-              </div>
+              {DEMO_USERS.map(u => (
+                <div key={u.username} className="bg-gray-50 rounded-md p-2 text-center">
+                  <p className="font-medium text-gray-700">{u.username}</p>
+                  <p className="text-gray-400">{u.password}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-
-        <p className="text-center text-slate-400 text-xs mt-6">
-          © {new Date().getFullYear()} Satyam Mall
-        </p>
       </div>
     </div>
   );
